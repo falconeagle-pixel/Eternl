@@ -98,11 +98,13 @@ const moreItems: Item[] = [
 export default function SelectWalletTypeModal({
   open = true,
   onClose,
+  onBack,
   onSelect,
 }: {
   open?: boolean;
   onClose?: () => void;
-  onSelect?: (key: string, payload?: any) => void;
+  onBack?: () => void;
+  onSelect?: (key: string, payload?: unknown) => void;
 }) {
   const [view, setView] = useState<"main" | "more">("main");
   const [activeSecondaryKey, setActiveSecondaryKey] = useState<string | null>(
@@ -127,7 +129,7 @@ export default function SelectWalletTypeModal({
     setActiveSecondaryKey(null);
   };
 
-  const confirmFromSecondary = (key: string, payload?: any) => {
+  const confirmFromSecondary = (key: string, payload?: unknown) => {
     setActiveSecondaryKey(null);
     onSelect?.(key, payload);
   };
