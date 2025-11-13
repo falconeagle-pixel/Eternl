@@ -113,16 +113,16 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center relative">
       {/* Top gradient line */}
-      <div className="w-full h-0.5 bg-gradient-to-r from-pink-500 via-orange-400 to-purple-500" />
+      <div className="w-full h-0.5 bg-linear-to-r from-pink-500 via-orange-400 to-purple-500" />
 
       {/* Hero section */}
-      <section className="flex flex-col items-start text-left mt-24 px-12 sm:px-24 flex-grow">
+      <section className="flex flex-col items-start text-left mt-24 px-12 sm:px-24 grow">
         <h1 className="mt-10 text-5xl sm:text-6xl font-extrabold leading-tight">
-          <span className="bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
             A modern Cardano Wallet.{" "}
           </span>
           <br />
-          <span className="bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
             For everyone.
           </span>
         </h1>
