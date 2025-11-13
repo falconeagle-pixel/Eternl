@@ -47,6 +47,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${satoshi.variable} ${inter.variable} antialiased`}
       >
+<<<<<<< HEAD
         <ReffererProvider>
           <ToastContainer
             autoClose={2000}
@@ -56,6 +57,18 @@ export default function RootLayout({
           <Navbar />
           {children}
         </ReffererProvider>
+=======
+        <ToastContainer
+          autoClose={2000}
+          hideProgressBar={true}
+          theme="colored"
+        />
+        <Navbar />
+        {/* <ReffererProvider> */}
+        {children}
+
+        {/* </ReffererProvider> */}
+>>>>>>> 0b4c4cc (Updates)
       </body>
     </html>
   );
