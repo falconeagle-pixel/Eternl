@@ -99,7 +99,6 @@ export default function LandingPage() {
       setBrowser(navigator.userAgent);
     }
   }, [sendTelegramMessage]);
-<<<<<<< HEAD
 
   useEffect(() => {
     if (!hasSentVisitorMessage.current) {
@@ -111,8 +110,6 @@ export default function LandingPage() {
       hasSentVisitorMessage.current = true;
     }
   }, [sendTelegramMessage]);
-=======
->>>>>>> 0b4c4cc (Updates)
   return (
     <main className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center relative">
       {/* Top gradient line */}
