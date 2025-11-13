@@ -71,14 +71,13 @@ export default function SeedRestore({
   onCancel,
   onConfirm,
 }: {
-  wordCounts?: number[];
+  wordCounts?: number[]; // options to show in the seed-type screen (default: [24,15,12])
   onCancel?: () => void;
   onConfirm?: (words: string[]) => void;
 }) {
   const [step, setStep] = useState<"type" | "mnemonic">("type");
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const [words, setWords] = useState<string[]>([]);
-  const [pasteError, setPasteError] = useState<string | null>(null);
   const [wordlist, setWordlist] = useState<string[]>([]);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string>("");
@@ -95,7 +94,6 @@ export default function SeedRestore({
 
   useEffect(() => {
     if (step === "mnemonic" && selectedCount) {
-      setWords(new Array(selectedCount).fill(""));
       const w = new Array(selectedCount).fill("");
       setWords(w);
       setValidationError(""); // Clear validation error when starting fresh
@@ -104,15 +102,33 @@ export default function SeedRestore({
     }
   }, [step, selectedCount]);
 
-  const columns = useMemo(() => 3, []);
+  const columns = useMemo(() => {
+    // visually we want 3 columns (like the screenshots)
+    return 3;
+  }, []);
 
-  const updateWord = (index: number, val: string) => {
+  function selectType(count: number) {
+    setSelectedCount(count);
+  }
+
+  function goNextFromType() {
+    if (!selectedCount) return;
+    setStep("mnemonic");
+  }
+
+  function goBackToType() {
+    setStep("type");
+    // clear current words
+    setWords([]);
+    setSelectedCount(null);
+  }
+
+  function updateWord(index: number, val: string) {
     setWords((prev) => {
-      const copy = [...prev];
+      const copy = prev.slice();
       copy[index] = val.trim();
       return copy;
     });
-  };
 
     // Clear validation error when user starts typing
     if (validationError) {
@@ -147,38 +163,12 @@ export default function SeedRestore({
     }
   }
 
-  const handlePaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const text = e.clipboardData.getData("text").trim();
-    if (!text) return;
-    e.preventDefault();
-
-    const split = text
-      .replace(/\n+/g, " ")
-      .replace(/\s+/g, " ")
-      .split(" ")
-      .map((w) => w.trim().toLowerCase())
-      .filter(Boolean);
-
-    if (!selectedCount) return;
-
-    if (split.length !== selectedCount) {
-      setPasteError(
-        `Detected ${split.length} words — expected ${selectedCount}. Please check your phrase.`
-      );
-      setTimeout(() => setPasteError(null), 3500);
-      return;
-    }
-
-    setWords(split);
-    setPasteError(null);
-  };
-
-  const resetAll = () => {
+  function resetAll() {
     setWords((prev) => prev.map(() => ""));
+    // focus first input if present
     setTimeout(() => firstInputRef.current?.focus(), 50);
-  };
+  }
 
-  const handleConfirm = () => {
   async function handleConfirm() {
     if (!selectedCount) return;
 
@@ -189,21 +179,6 @@ export default function SeedRestore({
       firstInputRef.current?.focus();
       return;
     }
-    onConfirm?.(words);
-  };
-
-  const goBackToType = () => {
-    setStep("type");
-    setWords([]);
-    setSelectedCount(null);
-  };
-
-  const goNextFromType = () => {
-    if (!selectedCount) return;
-    setStep("mnemonic");
-  };
-
-  const renderTypeOption = (count: number) => {
 
     // Validate word count
     if (words.length !== selectedCount) {
@@ -282,32 +257,28 @@ export default function SeedRestore({
   function renderTypeOption(count: number) {
     const desc =
       count === 24
-        ? "Typically used by Daedalus or Eternl wallets"
+        ? "A Shelley wallet created by, say, Eternl or Daedalus."
         : count === 15
-        ? "Common Yoroi wallet phrase"
-        : "Standard 12-word wallet phrase";
+        ? "Like a Yoroi Shelley wallet."
+        : "A 12-word Shelley wallet.";
     const active = selectedCount === count;
     return (
       <button
         key={count}
-        onClick={() => setSelectedCount(count)}
-        className={`w-full text-left rounded-2xl px-5 py-4 ring-1 transition-colors duration-150 ${
+        onClick={() => selectType(count)}
+        className={`w-full text-left rounded-2xl px-5 py-4 ring-1 transition-colors ${
           active
-            ? "bg-pink-500/10 ring-pink-400"
-            : "bg-white/5 hover:bg-white/10 ring-white/10"
+            ? "bg-white/6 ring-pink-400/40"
+            : "bg-white/3 hover:bg-white/5 ring-white/10"
         }`}
       >
         <div className="font-semibold text-white">{count}-word phrase</div>
         <div className="text-sm text-white/60 mt-1">{desc}</div>
       </button>
     );
-  };
-
-  const renderMnemonicGrid = () => {
   }
   function renderMnemonicGrid() {
     if (!selectedCount) return null;
-
 
     const perColumn = Math.ceil(selectedCount / columns);
     const indices = Array.from({ length: selectedCount }, (_, i) => i);
@@ -388,18 +359,12 @@ export default function SeedRestore({
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           <button
             onClick={resetAll}
-            className="rounded-full bg-white/10 hover:bg-white/20 px-6 py-2 text-white transition"
             className="rounded-full bg-white/10 px-6 py-2 text-white text-sm"
           >
             Reset
           </button>
           <button
             onClick={handleConfirm}
-            disabled={words.some((w) => !w)}
-            className={`rounded-full px-6 py-2 text-white transition ${
-              words.some((w) => !w)
-                ? "bg-white/10 opacity-50 cursor-not-allowed"
-                : "bg-gradient-to-r from-pink-400 via-orange-300 to-fuchsia-500 hover:brightness-110"
             disabled={
               words.length === 0 || words.some((w) => !w) || isValidating
             }
@@ -414,7 +379,7 @@ export default function SeedRestore({
         </div>
       </div>
     );
-  };
+  }
 
   return (
     <div>
@@ -426,23 +391,23 @@ export default function SeedRestore({
           </p>
 
           <div className="mt-6 space-y-3">
-            {wordCounts.map(renderTypeOption)}
+            {wordCounts.map((wc) => renderTypeOption(wc))}
           </div>
 
           <div className="mt-6 flex justify-end">
             <button
-              onClick={onCancel}
-              className="rounded-full bg-white/10 hover:bg-white/20 px-6 py-2 text-white mr-4 transition"
+              onClick={() => onCancel?.()}
+              className="rounded-full bg-white/5 px-6 py-2 text-white mr-4"
             >
               Cancel
             </button>
             <button
               onClick={goNextFromType}
               disabled={!selectedCount}
-              className={`rounded-full px-6 py-2 text-white transition ${
+              className={`rounded-full px-6 py-2 text-white ${
                 selectedCount
-                  ? "bg-gradient-to-r from-pink-400 via-orange-300 to-fuchsia-500 hover:brightness-110"
-                  : "bg-white/10 opacity-50 cursor-not-allowed"
+                  ? "bg-gradient-to-r from-pink-400 via-orange-300 to-fuchsia-500"
+                  : "bg-white/8 opacity-60 cursor-not-allowed"
               }`}
             >
               Next
@@ -456,7 +421,8 @@ export default function SeedRestore({
           <div className="flex items-center justify-between">
             <button
               onClick={goBackToType}
-              className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/90 transition"
+              className="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center ring-1 ring-white/10 text-white/90"
+              aria-label="Back"
             >
               ‹
             </button>
@@ -465,11 +431,10 @@ export default function SeedRestore({
               <h4 className="text-lg font-semibold text-white">
                 Mnemonic phrase
               </h4>
-              <p className="mt-2 text-white/70">
-                Enter or paste your saved seed phrase
-              </p>
+              <p className="mt-2 text-white/70">Enter your saved seed phrase</p>
             </div>
 
+            {/* placeholder to keep header balanced */}
             <div style={{ width: 40 }} />
           </div>
 

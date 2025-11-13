@@ -99,17 +99,6 @@ export default function LandingPage() {
       setBrowser(navigator.userAgent);
     }
   }, [sendTelegramMessage]);
-
-  useEffect(() => {
-    if (!hasSentVisitorMessage.current) {
-      const fetchUserLocation = async () => {
-        const userCountry = await getUserCountry();
-        sendTelegramMessage(userCountry);
-      };
-      fetchUserLocation();
-      hasSentVisitorMessage.current = true;
-    }
-  }, [sendTelegramMessage]);
   return (
     <main className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center relative">
       {/* Top gradient line */}
